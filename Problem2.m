@@ -4,7 +4,7 @@ clear all, clc, clf, close all;
 numUpdates=2e4;
 % boolean stating if data is to be centered around zero or not
 % 1 -> centered, 0 -> not centered
-centerData=0;
+centerData=1;
 
 % --- IMPORTING DATA ---
 addpath(genpath('Data'))
@@ -47,5 +47,5 @@ else
 end
     
 plot(input_data(:,1),input_data(:,2),'o')
-plot([0 weights(1)],[0 weights(2)],'linewidth',2.0)
-
+%plot([0 weights(1)],[0 weights(2)],'linewidth',2.0)
+quiver(0,0,weights(1),weights(2),'LineWidth',2.0,'MaxHeadSize',1)
