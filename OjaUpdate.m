@@ -1,8 +1,9 @@
-function [ weights ] = OjaUpdate( weights, xi, input_data )
+function [ weights ] = OjaUpdate( weights, xi )
 %OjaUpdate: Summary of this function goes here
 %   Detailed explanation goes here
-
-    zeta=input_data.*weights;
+    
+    eta=0.001;
+    zeta=xi*weights';
     deltaWeights=eta*zeta*(xi-zeta.*weights);
     weights=weights+deltaWeights;
 
