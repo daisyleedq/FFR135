@@ -10,18 +10,19 @@ targets=data{1,1};
 
 input_unsup=[data{1,2} data{1,3}];
 
-kValues=4;
+kValues=10;
 numRuns=1;
 numUpdates1=1e5;
 numUpdates2=3000;
 p=size(input_unsup,1);
 N=size(input_unsup,2);
+meanCE=zeros(1,length(kValues));
 
 for iKval=1:length(kValues)
     
     k=kValues(iKval);
     
-    minCE=inf*ones(size(kValues));
+    minCE=inf;
     CE=zeros(numRuns,1);
     
     for iRun=1:numRuns
@@ -55,9 +56,9 @@ for iKval=1:length(kValues)
         
         CE(iRun)=(1/(2*p))*sum(abs(targets-signO));
         
-        if CE(iRun) < minCE(iKval)
+        if CE(iRun) < minCE
             
-            minCE(iKval)=CE(iRun);
+            minCE=CE(iRun);
             best_weights_unsup = weights_unsup;
             best_weights_sup = weights_sup;
             best_threshold = threshold;
@@ -66,10 +67,12 @@ for iKval=1:length(kValues)
         
     end
     
+    meanCE(iKval)=mean(CE);
+    
 end
 
 
-disp(['Minimum classification error was: ' num2str(min(minCE))])
+disp(['Minimum classification error was: ' num2str(minCE)])
 
 figure(1), hold on
 for i=1:length(targets)
@@ -92,15 +95,23 @@ for i=1:numPointsX
        output_unsup = unsupervisedRun( input_unsup, best_weights_unsup );
        input_sup = output_unsup;
        output_sup = supervisedRun( input_sup, best_weights_sup, best_threshold );
-       
+
        if output_sup >= 0
            plot(X(i,j),Y(i,j),'o','color','blue')
        else
            plot(X(i,j),Y(i,j),'o','color','red')           
        end
-       
+    
     end
 end
-    
+
+for k=1:size(best_weights_unsup,1)
+    quiver(0,0,best_weights_unsup(k,1),best_weights_unsup(k,2),'LineWidth',2.5,'MaxHeadSize',0.8,'color','black')
+end
+
+if length(kValues)>1
+    figure(2)
+    plot(kValues,meanCE)
+end
     
     
