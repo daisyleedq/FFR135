@@ -1,4 +1,4 @@
-clear all, clc, clf, close all;
+%clear all, clc, clf, close all;
 
 % INPUT
 numUpdates=2e4;
@@ -35,17 +35,49 @@ for iUpdate=1:numUpdates
 end
 
 figure(1)
-plot(1:numUpdates,weightNorm)
+plot(log(1:numUpdates),weightNorm,'LineWidth',2)
 
 figure(2), hold on
+
+C=zeros(2,2);
+for i=1:2
+    for j=1:2
+        for mu=1:p
+            
+            C(i,j)=C(i,j)+(1/p)*(input_data(mu,i)-mean(input_data(:,i)))*...
+                   (input_data(mu,j)-mean(input_data(:,j)));
+            
+        end
+    end
+end
+
+[V,D]=eig(C);
+
+lambdaMax=max(D(:));
+[~,index_lambdaMax]=find(D==lambdaMax);
+eigVec_lambdaMax=V(:,index_lambdaMax);
+
+plot(input_data(:,1),input_data(:,2),'o')
+quiver(0,0,weights(1),weights(2),'LineWidth',2.0,'MaxHeadSize',1)
+quiver(0,0,eigVec_lambdaMax(1),eigVec_lambdaMax(2),'LineWidth',2.0,'MaxHeadSize',1)
+
 if centerData
     plot([-1.5 1.5],[0 0],'k')
     plot([0 0],[-1.5 1.5],'k')
+    axis([-1.5 1.5 -1.5 1.5])
 else
-    plot([-2 14],[0 0],'k')
-    plot([0 0],[-0.5 3],'k')
+    plot([-1.5 14],[0 0],'k')
+    plot([0 0],[-1.5 3],'k')
+    axis([-1.5 14 -1.5 3])
 end
-    
-plot(input_data(:,1),input_data(:,2),'o')
-%plot([0 weights(1)],[0 weights(2)],'linewidth',2.0)
-quiver(0,0,weights(1),weights(2),'LineWidth',2.0,'MaxHeadSize',1)
+
+figure(1)
+title('Network Convergence','Interpreter','latex','FontSize',18)
+ylabel('$|\mathbf{w}|$','Interpreter','latex','FontSize',14)
+xlabel('log( Time step $t$ )','Interpreter','latex','FontSize',14)
+figure(2)
+title('Maximal Principle Component Direction','Interpreter','latex','FontSize',18)
+ylabel('$\xi_1$','Interpreter','latex','FontSize',14)
+xlabel('$\xi_2$','Interpreter','latex','FontSize',14)
+l=legend('Data','$\mathbf{w}$','$\mathbf{u}_{\lambda_{max}}$');
+set(l,'Interpreter','latex','FontSize',14)
